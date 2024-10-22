@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2E3AA1">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <title>Sample PWA</title>
+</head>
+<body>
+    <header>
+        <h1>Welcome to My PWA</h1>
+        <p>This is a simple Progressive Web App example.</p>
+    </header>
+
+    <main>
+        <button id="install-btn" style="display: none;">Install App</button>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 My PWA</p>
+    </footer>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+            .then(() => {
+                console.log('Service Worker registered');
+            })
+            .catch((error) => {
+                console.error('Service Worker registration failed:', error);
+            });
+        }
+
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            // Update UI notify the user they can install the PWA
+            installBtn.style.display = 'block';
+
+            installBtn.addEventListener('click', () => {
+                // Show the install prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    } else {
+                        console.log('User dismissed the install prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
